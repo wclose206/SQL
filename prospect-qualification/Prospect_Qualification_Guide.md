@@ -1,59 +1,72 @@
-# Prospect Qualification Guide: Testability Tiers (v2)
+# Prospect Qualification Guide: Testability Tiers (v3)
 
 **Tool:** `Fastr_Prospect_Testability_Scorer.xlsx`
 
-## The problem
+## The bar
 
-We keep offering free trials to sites that are too small to test on. If a site doesn't get enough orders, an A/B test can't reach statistical significance in a reasonable time. Tests then run for months, finish inconclusive, and we have nothing to show for the optimization work.
+Being able to run a test doesn't mean the test will reach a result. A **fast, high-impact programme** needs a purchase test to read at **95% confidence (80% power) within 2–3 weeks**. The order volume that clears that bar is the minimum we should require before bringing a customer on.
 
-## What decides test speed: orders per week
+## What the data says: all Workspace customers in PostHog
 
-Neither revenue nor traffic decides how fast a site can test. **The number of conversions per week decides it.** We checked this against Fastr's own customers in PostHog over the last full weeks (Sep–Oct 2026):
+We scanned all 228 PostHog projects over the 30 days to 4 Oct 2026:
 
-| Customer | Visitors / wk | Conv. rate | **Orders / wk** | Result |
-|---|---|---|---|---|
-| Express | 650K | 2.84% | **~18,450** | Tests fast |
-| Bonobos | 131K | 3.93% | **~5,140** | Tests fast |
-| Ethan Allen | 221K | 0.13% | **~280** | Works only because tests are scored on design-center CTA clicks |
-| The 1916 Company | 80K | 0.015% | **~12** | Purchase tests cannot finish |
+- 48 projects had Workspace data.
+- 28 had usable visitor and purchase data, and those 28 are tiered.
 
-Revenue on its own misleads. Bonobos tests fast on about $79M a year of tracked orders, while Brilliant Earth ($438M) has a $2,000 AOV and therefore few orders.
+| Tier | Customers | Who |
+|---|---|---|
+| **Tier 1**: a 5% lift reads in ≤ 2–3 weeks | 5 | Express, Bonobos, AG Jeans\*, JR Cigars, The Sak\* (3 weeks) |
+| **Tier 2**: only a 10% lift reads in ≤ 3 weeks | 4 | Mackenzie Childs, Omnicheer\*, RM Williams, GK Elite\* |
+| **Tier 3**: only a 20% lift reads in ≤ 3 weeks | 2 | Cigars.com, Nassau Candy |
+| **Not a fit** for purchase tests | 17 | Ethan Allen†, Citizen, Bulova, The 1916 Company, Hardwood Lumber, … |
 
-## The math
+\* These sites record purchases through a Shopify webhook. Before a purchase can be credited to a test variant, the cart-token bridge has to be in place (see the Feasibility by Client data-quality log).
 
-| Lift you want to detect | Conversions needed per variant |
-|---|---|
-| 10% (a bold test) | ≈ 1,650 |
-| 5% (a typical win) | ≈ 6,450 |
+† Ethan Allen works as a customer because its tests are scored on design-center CTA clicks, not purchases.
 
-**Weeks to read a test** = (conversions per variant × variants) ÷ (orders per week × share of buyers who enter the test).
+## Minimum volume per tier
 
-The calculation uses 95% confidence and 80% power, and assumes 50% of buyers enter a test. Every test runs at least 2 weeks. Sources: [Evan Miller: How Not To Run an A/B Test](https://www.evanmiller.org/how-not-to-run-an-ab-test.html) and his [sample size calculator](https://www.evanmiller.org/ab-testing/sample-size.html).
+These figures assume a test that reaches 100% of visitors and the apparel median conversion rate of 3.5%:
 
-## Tiers
-
-| Tier | Online orders / week | Meaning | Action |
+| Tier | **Weekly orders** | Monthly orders | Monthly unique visitors |
 |---|---|---|---|
-| **Tier 1: Pursue** | **≥ 5,000** (about 21,700 a month) | Reads a 10% lift in about 1 week and a 5% lift in about 5 weeks | Offer the trial. Plan 2-week tests on purchases. |
-| **Tier 2: Qualify** | **1,500–5,000** | Reads a 10% lift in 1.5–4.5 weeks | Trial on top-traffic pages only, with bold tests. |
-| **Tier 3: Don't trial** | **< 1,500** | Purchase tests take months | No A/B trial, unless tests can be scored on a micro-conversion with ≥ 1,500 events a week (the Ethan Allen model). |
+| Tier 1: 5% lift in ≤ 2 weeks | **≈ 6,400** | ≈ 27,500 | ≈ 715,000 |
+| Tier 1: 5% lift in ≤ 3 weeks | **≈ 4,400** | ≈ 19,000 | ≈ 490,000 |
+| Tier 2: 10% lift in ≤ 3 weeks | **≈ 1,100** | ≈ 4,800 | ≈ 126,000 |
+| Tier 3: 20% lift in ≤ 3 weeks | **≈ 290** | ≈ 1,270 | ≈ 33,000 |
 
-## Inputs, in order of reliability
+**The required order count barely changes with conversion rate.** What changes is the number of visitors a site needs to produce those orders. A 1%-converting site needs about 2.6M monthly visitors for Tier 1, while an 8%-converting site needs about 300K. So **qualify on weekly orders first.**
 
-1. **Monthly online orders.** Ask the prospect, or look in GA4 or Shopify.
-2. **Monthly visitors.** The tool multiplies them by a vertical conversion rate (benchmarks are on the Assumptions tab).
-3. **Annual US digital revenue.** The tool divides it by AOV. This is the least reliable input, because public "digital revenue" often includes stores, phone orders, Amazon or international sales.
+## What that volume means in revenue, using PostHog-measured AOVs
 
-## Open questions before we lock the thresholds
+These figures also use the 3.5% conversion rate:
 
-- **The order math says almost any retailer with $40M+ a year in online orders clears Tier 1.** That doesn't fit our experience that only 3–5 of 100+ customers test fast. Possible explanations:
-  - Fastr's tracking captures only part of each customer's orders. Express tracks about $164M a year, which is probably below its total online sales.
-  - Tests run on narrow page sections, so far fewer buyers than 50% enter them.
-  - Some customers lack the operational capacity to ship tests.
-- **Next step:** measure tracked orders per week for every customer in PostHog and compare against which customers actually test fast. That shows whether orders per week alone separates them.
+| AOV | Example | Tier 1 (2 weeks) | Tier 1 (3 weeks) | Tier 2 | Tier 3 |
+|---|---|---|---|---|---|
+| $130 | Express ($128) | $43M/yr | $30M | $8M | $2M |
+| $230 | Apparel median | $76M | $52M | $13M | $3.5M |
+| $310 | Bonobos, AG Jeans, RM Williams | $102M | $71M | $18M | $4.7M |
+| $1,450 | Watches & jewelry median | $479M | $330M | $84M | $22M |
+| $1,850 | Furniture median | $611M | $421M | $108M | $28M |
+
+AOV doesn't change the statistics, but it does change how much revenue a site needs to produce enough orders. A $2,000-AOV furniture retailer needs about 14× the online revenue of a $130 apparel site to test at the same speed.
 
 ## Rules of thumb for reps
 
-- **Ask for orders, not revenue.** "How many online orders a week?" decides the tier.
-- **AOV above $500:** expect Tier 2 or 3 unless traffic is very large.
-- **Borderline accounts (within ~25% of a threshold):** score them at the lower tier until real analytics are shared.
+1. **Ask for weekly online orders first.** About 6,400 a week puts a site in the fast programme. Under about 1,100 a week, only bold tests are possible, and under about 300 a week, purchase tests can't be run.
+2. **High-AOV categories (furniture, watches, jewelry) rarely qualify on purchases.** Pitch micro-conversion testing (CTA clicks, appointments, leads) instead, as with Ethan Allen.
+3. **Testing a single template, such as PDP only, needs about twice the volume.**
+4. **Borderline accounts (within ~25% of a threshold)** go in the lower tier until they share real analytics.
+
+## Method
+
+The method matches the Feasibility by Client workbook:
+
+- Visitors are unique people, not sessions.
+- Conversion rate = converting visitors ÷ visitors.
+- Orders are de-duplicated on transaction id.
+- Reach grows sub-linearly: V(t) ∝ t^b, with b = 0.92 (median measured across customers).
+- Orders per buyer = 1.1 (median measured across customers).
+- Test sizing is the two-proportion z-test (see [Evan Miller's sample-size calculator](https://www.evanmiller.org/ab-testing/sample-size.html)).
+
+**Caveat:** PostHog counts only what Fastr tracks, so some customers' total orders may be higher than shown.

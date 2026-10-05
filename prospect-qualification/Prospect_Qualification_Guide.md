@@ -4,7 +4,7 @@
 
 ## The bar
 
-Being able to run a test doesn't mean the test will reach a result. A **fast, high-impact programme** needs a purchase test to read at **95% confidence (80% power) within 2–3 weeks**. The order volume that clears that bar is the minimum we should require before bringing a customer on.
+Being able to run a test doesn't mean the test will reach a result. A **fast, high-impact program** needs a purchase test to read at **95% confidence (80% power) within 2–3 weeks**. The order volume that clears that bar is the minimum we should require before bringing a customer on.
 
 ## What the data says: all Workspace customers in PostHog
 
@@ -53,7 +53,7 @@ AOV doesn't change the statistics, but it does change how much revenue a site ne
 
 ## Rules of thumb for reps
 
-1. **Ask for weekly online orders first.** About 6,400 a week puts a site in the fast programme. Under about 1,100 a week, only bold tests are possible, and under about 300 a week, purchase tests can't be run.
+1. **Ask for weekly online orders first.** About 6,400 a week puts a site in the fast program. Under about 1,100 a week, only bold tests are possible, and under about 300 a week, purchase tests can't be run.
 2. **High-AOV categories (furniture, watches, jewelry) rarely qualify on purchases.** Pitch micro-conversion testing (CTA clicks, appointments, leads) instead, as with Ethan Allen.
 3. **Testing a single template, such as PDP only, needs about twice the volume.**
 4. **Borderline accounts (within ~25% of a threshold)** go in the lower tier until they share real analytics.

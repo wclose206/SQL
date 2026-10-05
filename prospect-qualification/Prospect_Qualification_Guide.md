@@ -1,48 +1,59 @@
-# Prospect Qualification Guide: Testability Tiers
+# Prospect Qualification Guide: Testability Tiers (v2)
 
 **Tool:** `Fastr_Prospect_Testability_Scorer.xlsx`
 
 ## The problem
 
-We keep offering free trials to sites that are too small to test on. Without enough traffic and conversions, an A/B test can't reach statistical significance in a reasonable time. Tests run for months, finish inconclusive, and we can't prove what optimization is worth. A trial on a site like that costs us time and leaves no proof to sell with.
+We keep offering free trials to sites that are too small to test on. If a site doesn't get enough orders, an A/B test can't reach statistical significance in a reasonable time. Tests then run for months, finish inconclusive, and we have nothing to show for the optimization work.
 
-**The fix:** before offering a trial, estimate how long a typical test would take on the prospect's traffic. If it's too slow, don't trial.
+## What decides test speed: orders per week
 
-## The one number that matters: weeks to significance
+Neither revenue nor traffic decides how fast a site can test. **The number of conversions per week decides it.** We checked this against Fastr's own customers in PostHog over the last full weeks (Sep–Oct 2026):
 
-The scorer only needs two inputs: **annual US digital revenue** and **monthly sessions**. AOV is optional.
+| Customer | Visitors / wk | Conv. rate | **Orders / wk** | Result |
+|---|---|---|---|---|
+| Express | 650K | 2.84% | **~18,450** | Tests fast |
+| Bonobos | 131K | 3.93% | **~5,140** | Tests fast |
+| Ethan Allen | 221K | 0.13% | **~280** | Works only because tests are scored on design-center CTA clicks |
+| The 1916 Company | 80K | 0.015% | **~12** | Purchase tests cannot finish |
 
-| Step | Formula |
+Revenue on its own misleads. Bonobos tests fast on about $79M a year of tracked orders, while Brilliant Earth ($438M) has a $2,000 AOV and therefore few orders.
+
+## The math
+
+| Lift you want to detect | Conversions needed per variant |
 |---|---|
-| Revenue per visitor (RPV) | Revenue ÷ 12 ÷ monthly sessions |
-| Conversion rate (CVR) | RPV ÷ AOV |
-| Visitors needed per variant | (Zα/2 + Zβ)² × [p₁(1−p₁) + p₂(1−p₂)] ÷ (p₂−p₁)², where p₂ = p₁ × (1 + MDE) |
-| Weeks to significance | (Visitors per variant × variants) ÷ weekly visitors entering the test |
+| 10% (a bold test) | ≈ 1,650 |
+| 5% (a typical win) | ≈ 6,450 |
 
-Default settings: 95% confidence, 80% power, 5% relative lift (MDE), 2 variants, and 50% of site traffic in the test. You can change all of them on the **Assumptions** tab.
+**Weeks to read a test** = (conversions per variant × variants) ÷ (orders per week × share of buyers who enter the test).
 
-New to these terms? See [Evan Miller: How Not To Run an A/B Test](https://www.evanmiller.org/how-not-to-run-an-ab-test.html), the [sample size calculator](https://www.evanmiller.org/ab-testing/sample-size.html) and [Minimum Detectable Effect (Optimizely)](https://www.optimizely.com/optimization-glossary/minimum-detectable-effect/).
+The calculation uses 95% confidence and 80% power, and assumes 50% of buyers enter a test. Every test runs at least 2 weeks. Sources: [Evan Miller: How Not To Run an A/B Test](https://www.evanmiller.org/how-not-to-run-an-ab-test.html) and his [sample size calculator](https://www.evanmiller.org/ab-testing/sample-size.html).
 
 ## Tiers
 
-| Tier | Rule (defaults) | What it means | Action |
+| Tier | Online orders / week | Meaning | Action |
 |---|---|---|---|
-| **Tier 1: Pursue** | ≤ 2 weeks to significance **and** ≥ $200M revenue | 20+ clean tests a year per surface | Offer the trial. Plan 2-week tests. |
-| **Tier 2: Qualify** | ≤ 4 weeks **and** ≥ $50M revenue | About 1 test a month. Only top-traffic pages work. | Trial only with a scoped plan: high-traffic pages and bold tests (≥10% lift). |
-| **Tier 3: Don't trial** | Everything else | 4+ weeks per test. Real wins of 2–8% won't show up. | No A/B trial. Nurture, or sell non-testing services. |
+| **Tier 1: Pursue** | **≥ 5,000** (about 21,700 a month) | Reads a 10% lift in about 1 week and a 5% lift in about 5 weeks | Offer the trial. Plan 2-week tests on purchases. |
+| **Tier 2: Qualify** | **1,500–5,000** | Reads a 10% lift in 1.5–4.5 weeks | Trial on top-traffic pages only, with bold tests. |
+| **Tier 3: Don't trial** | **< 1,500** | Purchase tests take months | No A/B trial, unless tests can be scored on a micro-conversion with ≥ 1,500 events a week (the Ethan Allen model). |
 
-Note: revenue alone doesn't decide the tier. A $220M home-furnishings site with a high AOV and low traffic can still be Tier 2. That's why the scorer uses traffic math and not revenue bands.
+## Inputs, in order of reliability
+
+1. **Monthly online orders.** Ask the prospect, or look in GA4 or Shopify.
+2. **Monthly visitors.** The tool multiplies them by a vertical conversion rate (benchmarks are on the Assumptions tab).
+3. **Annual US digital revenue.** The tool divides it by AOV. This is the least reliable input, because public "digital revenue" often includes stores, phone orders, Amazon or international sales.
+
+## Open questions before we lock the thresholds
+
+- **The order math says almost any retailer with $40M+ a year in online orders clears Tier 1.** That doesn't fit our experience that only 3–5 of 100+ customers test fast. Possible explanations:
+  - Fastr's tracking captures only part of each customer's orders. Express tracks about $164M a year, which is probably below its total online sales.
+  - Tests run on narrow page sections, so far fewer buyers than 50% enter them.
+  - Some customers lack the operational capacity to ship tests.
+- **Next step:** measure tracked orders per week for every customer in PostHog and compare against which customers actually test fast. That shows whether orders per week alone separates them.
 
 ## Rules of thumb for reps
 
-- **Under ~1M monthly sessions:** almost always Tier 2 or 3.
-- **"Smallest lift readable in 4 weeks" above 10%:** most real wins will be invisible. Treat this as a red flag.
-- **Fewer than ~350 conversions per variant:** results can't be trusted, however long the test runs.
-- **Borderline accounts (within ~25% of a threshold):** score them at the lower tier until the prospect shares real GA4/analytics data. Third-party estimates (Similarweb, Digital Commerce 360) can be off by 30% or more.
-
-## Workflow
-
-1. Pull revenue from [Digital Commerce 360](https://www.digitalcommerce360.com/), a 10-K or the prospect. Pull sessions from Similarweb/Semrush.
-2. Enter them on **Prospect Scorer**. Filter by Tier.
-3. On discovery calls, use **Single Calculator** to show prospects their own math. It shows why a fast-testing program fits them, or why it doesn't yet.
-4. Use **Traffic Thresholds** as a quick reference for minimum sessions by conversion rate and lift.
+- **Ask for orders, not revenue.** "How many online orders a week?" decides the tier.
+- **AOV above $500:** expect Tier 2 or 3 unless traffic is very large.
+- **Borderline accounts (within ~25% of a threshold):** score them at the lower tier until real analytics are shared.
